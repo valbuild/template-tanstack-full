@@ -1,31 +1,33 @@
 import { cn } from "../../utils/cn";
+import { GAP, type Space } from "./Stack";
 
+export type GridColumns = 1 | 2 | 3 | 4;
+
+const COLUMNS: Record<GridColumns, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-1 sm:grid-cols-2",
+  3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+  4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+};
+
+/**
+ * Equal columns that collapse on smaller screens: one column on a phone, two
+ * on a tablet, `columns` from a laptop up.
+ */
 export function Grid({
-  children,
-  className,
-  cols = 1,
+  columns = 3,
   gap = "md",
+  className,
+  children,
 }: {
-  children: React.ReactNode;
+  columns?: GridColumns;
+  gap?: Space;
   className?: string;
-  cols?: 1 | 2 | 3 | 4;
-  gap?: "none" | "sm" | "md" | "lg";
+  children: React.ReactNode;
 }) {
-  const colsClass = {
-    1: "grid-cols-1",
-    2: "grid-cols-1 md:grid-cols-2",
-    3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
-  }[cols];
-
-  const gapClass = {
-    none: "gap-0",
-    sm: "gap-2",
-    md: "gap-4",
-    lg: "gap-8",
-  }[gap];
-
   return (
-    <div className={cn("grid", colsClass, gapClass, className)}>{children}</div>
+    <div className={cn("grid", COLUMNS[columns], GAP[gap], className)}>
+      {children}
+    </div>
   );
 }

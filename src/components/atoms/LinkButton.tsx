@@ -1,26 +1,25 @@
-import { cn } from "../../utils/cn";
-import {
-  className as buttonClassName,
-  variants as buttonVariants,
-} from "./Button";
+import { buttonClassName, type ButtonSize, type ButtonVariant } from "./Button";
 import { Link } from "./Link";
-import type { Variants } from "../base/variants.val";
 
+/** A link drawn as a button: "Read more", "Get started". */
 export function LinkButton({
   href,
-  children,
   variant = "primary",
+  size = "md",
   className,
+  children,
 }: {
   href: string;
-  variant?: Variants;
-  children: React.ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   className?: string;
+  children: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
-      className={cn(buttonClassName, buttonVariants[variant], className)}
+      data-variant={variant}
+      className={buttonClassName(size, className)}
     >
       {children}
     </Link>

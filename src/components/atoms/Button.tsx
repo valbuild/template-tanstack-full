@@ -1,24 +1,38 @@
 import { cn } from "../../utils/cn";
-import type { Variants } from "../base/variants.val";
 
-export const className =
-  "inline-flex items-center rounded-full px-5 py-2.5 text-sm font-semibold no-underline transition hover:-translate-y-0.5";
-export const variants: Record<Variants, string> = {
-  accent:
-    "border border-[rgba(50,143,151,0.3)] bg-[rgba(79,184,178,0.14)] text-[var(--lagoon-deep)] hover:bg-[rgba(79,184,178,0.24)]",
-  primary:
-    "border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--sea-ink)] hover:border-[rgba(23,58,64,0.35)]",
-  secondary:
-    "border border-[var(--chip-line)] bg-[var(--chip-bg)] text-[var(--sea-ink-soft)] hover:text-[var(--sea-ink)]",
-};
+export type ButtonVariant = "primary" | "secondary";
+export type ButtonSize = "md" | "lg";
 
-export type ButtonProps = {
-  variant?: Variants;
-  children: React.ReactNode;
-};
+/**
+ * The classes every button-looking thing shares, so a `LinkButton` and a
+ * `Button` cannot drift apart. Shape, case and how `primary` is drawn (solid,
+ * outline or soft) come from the theme; see `.button` in `theme.css`.
+ */
+export function buttonClassName(size: ButtonSize = "md", className?: string) {
+  return cn(
+    "button inline-flex items-center justify-center gap-2 font-body font-semibold no-underline transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-link disabled:opacity-50",
+    size === "lg"
+      ? "px-6 py-3 text-(length:--step-1)"
+      : "px-5 py-2.5 text-(length:--step-0)",
+    className,
+  );
+}
 
-export function Button({ variant = "primary", children }: ButtonProps) {
+export function Button({
+  variant = "primary",
+  size = "md",
+  className,
+  ...props
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+} & React.ComponentProps<"button">) {
   return (
-    <button className={cn(className, variants[variant])}>{children}</button>
+    <button
+      type="button"
+      data-variant={variant}
+      className={buttonClassName(size, className)}
+      {...props}
+    />
   );
 }

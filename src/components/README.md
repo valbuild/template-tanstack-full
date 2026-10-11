@@ -7,6 +7,16 @@ The architecture is defined by its constraints. Each layer has a clear responsib
 
 ---
 
+## The theme sits underneath
+
+None of the layers below pick a colour, a font or a size of their own. They
+read the theme's tokens (`text-fg`, `bg-action`, `font-heading`,
+`--step-3`, …), which come from `src/theme/theme.val.ts`. That is what lets an
+editor restyle the whole site without anyone touching a component. See
+`src/theme/`.
+
+---
+
 ## Layers
 
 ### T — Typography

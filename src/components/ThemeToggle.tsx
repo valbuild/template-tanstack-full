@@ -1,81 +1,66 @@
 import { useEffect, useState } from "react";
 
-type ThemeMode = "light" | "dark" | "auto";
+/** "site" is the theme's own default: no override stored. */
+type Choice = "site" | "light" | "dark";
 
-function getInitialMode(): ThemeMode {
-  if (typeof window === "undefined") {
-    return "auto";
+function read(): Choice {
+  try {
+    const stored = window.localStorage.getItem("theme");
+    return stored === "light" || stored === "dark" ? stored : "site";
+  } catch {
+    return "site";
   }
-
-  const stored = window.localStorage.getItem("theme");
-  if (stored === "light" || stored === "dark" || stored === "auto") {
-    return stored;
-  }
-
-  return "auto";
 }
 
-function applyThemeMode(mode: ThemeMode) {
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const resolved = mode === "auto" ? (prefersDark ? "dark" : "light") : mode;
-
-  document.documentElement.classList.remove("light", "dark");
-  document.documentElement.classList.add(resolved);
-
-  if (mode === "auto") {
-    document.documentElement.removeAttribute("data-theme");
+function apply(choice: Choice) {
+  const root = document.documentElement;
+  if (choice === "site") {
+    root.removeAttribute("data-theme");
   } else {
-    document.documentElement.setAttribute("data-theme", mode);
+    root.setAttribute("data-theme", choice);
   }
-
-  document.documentElement.style.colorScheme = resolved;
+  try {
+    if (choice === "site") {
+      window.localStorage.removeItem("theme");
+    } else {
+      window.localStorage.setItem("theme", choice);
+    }
+  } catch {
+    // Private mode: the choice holds for this page and is forgotten after.
+  }
 }
 
+const NEXT: Record<Choice, Choice> = {
+  site: "light",
+  light: "dark",
+  dark: "site",
+};
+const LABEL: Record<Choice, string> = {
+  site: "Auto",
+  light: "Light",
+  dark: "Dark",
+};
+
+/**
+ * A visitor's override of the site's light/dark default. Only `data-theme` on
+ * <html> changes; `theme.css` turns that into `color-scheme`, and every colour
+ * follows. `__root.tsx` applies the stored choice before the first paint.
+ */
 export default function ThemeToggle() {
-  const [mode, setMode] = useState<ThemeMode>("auto");
-
-  useEffect(() => {
-    const initialMode = getInitialMode();
-    setMode(initialMode);
-    applyThemeMode(initialMode);
-  }, []);
-
-  useEffect(() => {
-    if (mode !== "auto") {
-      return;
-    }
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => applyThemeMode("auto");
-
-    media.addEventListener("change", onChange);
-    return () => {
-      media.removeEventListener("change", onChange);
-    };
-  }, [mode]);
-
-  function toggleMode() {
-    const nextMode: ThemeMode =
-      mode === "light" ? "dark" : mode === "dark" ? "auto" : "light";
-    setMode(nextMode);
-    applyThemeMode(nextMode);
-    window.localStorage.setItem("theme", nextMode);
-  }
-
-  const label =
-    mode === "auto"
-      ? "Theme mode: auto (system). Click to switch to light mode."
-      : `Theme mode: ${mode}. Click to switch mode.`;
-
+  const [choice, setChoice] = useState<Choice>("site");
+  useEffect(() => setChoice(read()), []);
+  const next = NEXT[choice];
   return (
     <button
       type="button"
-      onClick={toggleMode}
-      aria-label={label}
-      title={label}
-      className="rounded-full border border-[var(--chip-line)] bg-[var(--chip-bg)] px-3 py-1.5 text-sm font-semibold text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(30,90,72,0.08)] transition hover:-translate-y-0.5"
+      onClick={() => {
+        apply(next);
+        setChoice(next);
+      }}
+      aria-label={`Colour mode: ${LABEL[choice]}. Switch to ${LABEL[next]}.`}
+      className="rounded-theme border border-border px-3 py-1.5 font-body text-(length:--step-minus-1) font-semibold text-fg-muted transition-colors hover:bg-subtle hover:text-fg"
     >
-      {mode === "auto" ? "Auto" : mode === "dark" ? "Dark" : "Light"}
+      {LABEL[choice]}
     </button>
   );
 }

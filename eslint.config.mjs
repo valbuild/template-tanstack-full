@@ -4,7 +4,14 @@ import valbuild from "@valbuild/eslint-plugin";
 
 export default [
   {
-    ignores: ["dist", ".output", ".nitro", ".tanstack", "src/routeTree.gen.ts"],
+    ignores: [
+      "dist",
+      ".output",
+      ".nitro",
+      ".tanstack",
+      "storybook-static",
+      "src/routeTree.gen.ts",
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

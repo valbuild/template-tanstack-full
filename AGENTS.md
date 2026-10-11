@@ -14,6 +14,12 @@ either here or in Val Studio at `/val`.
   beside, and its keys are the URLs that route serves.
 - `src/components/**/*.val.ts` — the schemas of the components a page is built
   from.
+- `src/media/*.val.ts` — the media libraries: every image (`images.val.ts`),
+  video (`videos.val.ts`), downloadable file (`files.val.ts`), icon and custom
+  font. A field never holds an upload of its own; it picks from a library with
+  `s.image(imagesVal)`, `s.video(videosVal)` or `s.file(filesVal)`, and stores
+  only `{ path }` — the size, type and default alt text are the library's. See
+  [src/media/README.md](src/media/README.md).
 
 ## Reading content
 
@@ -51,3 +57,35 @@ that must happen during the request. When you do, it **must** go through
 The components follow **TABS** — Typography, Atoms, Base, Sections. See
 [src/components/README.md](src/components/README.md). Pages compose Sections and
 nothing else.
+
+## The theme
+
+How the site looks is content: `src/theme/theme.val.ts`. An editor picks a
+preset (`src/theme/presets.ts`) and overrides single choices — colours, fonts,
+button shape, density. `resolveTheme` fills the gaps from the preset and
+`themeCss` turns the result into CSS variables, which `_site.tsx` renders.
+
+- **Components read tokens, never colours.** Use `bg-bg`, `text-fg`,
+  `text-fg-muted`, `border-border`, `bg-subtle`, `text-link`, `bg-action`,
+  `font-heading`, `rounded-theme`… (the list is `@theme inline` in
+  `src/theme/theme.css`). A literal colour will be wrong in dark mode or on a
+  brand section.
+- **Backgrounds are surfaces.** A section sets `data-surface` (`default`,
+  `muted`, `brand`, `inverse`) and everything inside follows. The surfaces are
+  defined in `src/theme/surfaces.ts`, and `pnpm test` checks that every text
+  colour on every surface clears WCAG AA for any brand colour. Run it after
+  changing a surface or a ramp.
+- **Nothing here imports the framework.** Router links and Val's renderers come
+  from `src/framework.tsx`.
+- `/styleguide` and `pnpm storybook` show every component under the theme.
+
+<!-- val:mcp:start -->
+
+## Content tools (MCP)
+
+Val's content tools are served over MCP at `/api/mcp` (`src/routes/api/mcp.ts`,
+`src/val/mcp.server.ts`). In local development an agent can read, validate and edit
+content there; a production build refuses unless the project is connected to
+Val Build and OAuth is configured — see README.md.
+
+<!-- val:mcp:end -->

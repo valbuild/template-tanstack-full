@@ -1,11 +1,9 @@
 import { initVal } from "@valbuild/tanstack";
 
 const { s, c, val, config, tanstackRouter } = initVal({
+  // How Val Studio looks for an editor who has not chosen. /val paints the
+  // same dark ground while it loads, in `src/routes/val/route.tsx`: change both together.
   defaultTheme: "dark",
-  // Every image, file and video is stored on Val's remote content host. The
-  // Val app requires it: a project there will not start without it, and
-  // `val publish` refuses to build.
-  files: { remote: true },
 });
 
 export type { t } from "@valbuild/tanstack";

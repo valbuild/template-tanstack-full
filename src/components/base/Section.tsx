@@ -1,20 +1,31 @@
 import { cn } from "../../utils/cn";
+import type { Surface } from "../../theme/surfaces";
+import { Container, type ContainerWidth } from "./Container";
 
+export type { Surface };
+
+/**
+ * The band every section is drawn in: a surface, the theme's vertical rhythm,
+ * and a container.
+ *
+ * The surface is what makes the section's contents legible without knowing
+ * where they are: inside `brand`, text is the colour that reads on the brand
+ * colour and a primary button inverts. See `theme/surfaces.ts`.
+ */
 export function Section({
-  children,
+  surface = "default",
+  width = "default",
   className,
+  children,
 }: {
-  children: React.ReactNode;
+  surface?: Surface;
+  width?: ContainerWidth;
   className?: string;
+  children: React.ReactNode;
 }) {
   return (
-    <section
-      className={cn(
-        "island-shell mt-8 flex flex-col gap-4 rounded-[1.5rem] p-6 sm:p-8",
-        className,
-      )}
-    >
-      {children}
+    <section data-surface={surface} className={cn("py-section", className)}>
+      <Container width={width}>{children}</Container>
     </section>
   );
 }

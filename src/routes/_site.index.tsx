@@ -32,7 +32,7 @@ function Home() {
     return <NotFound />;
   }
   return (
-    <main className="page-wrap px-4 pt-10 pb-8">
+    <main>
       {pageContent.sections.map((section, index) => (
         <AnySection key={`${section.type}-${index}`} section={section} />
       ))}

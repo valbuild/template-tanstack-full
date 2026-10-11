@@ -1,33 +1,38 @@
 import type { TitleTextSectionSchema } from "./titleTextSection.val";
-import { Heading2 } from "../typography/Heading2";
+import { Heading } from "../typography/Heading";
 import { Prose } from "../typography/Prose";
 import { Section } from "../base/Section";
-import { LinkButton } from "../atoms/LinkButton";
 import { Grid } from "../base/Grid";
+import { Stack } from "../base/Stack";
+import { Cluster } from "../base/Cluster";
+import { LinkButton } from "../atoms/LinkButton";
+import { hrefOf } from "../atoms/hrefOf";
 
 export function TitleTextSection({
   title,
   text,
   buttons,
+  surface,
 }: TitleTextSectionSchema) {
   return (
-    <Section className="gap-4">
-      <Grid cols={2}>
-        <Heading2>{title}</Heading2>
-        <Prose value={text} />
+    <Section surface={surface}>
+      <Grid columns={2} gap="lg">
+        <Heading level={2}>{title}</Heading>
+        <Stack gap="md" align="start">
+          <Prose value={text} />
+          <Cluster>
+            {buttons.map((button, index) => (
+              <LinkButton
+                key={index}
+                href={hrefOf(button)}
+                variant={button.variant}
+              >
+                {button.label}
+              </LinkButton>
+            ))}
+          </Cluster>
+        </Stack>
       </Grid>
-      <div className="flex justify-end gap-2">
-        {buttons.map((button) => (
-          <LinkButton
-            key={button.label}
-            href={button.href}
-            variant={button.variant}
-            className="w-fit"
-          >
-            {button.label}
-          </LinkButton>
-        ))}
-      </div>
     </Section>
   );
 }

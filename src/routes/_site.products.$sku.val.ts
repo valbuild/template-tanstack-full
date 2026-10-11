@@ -7,7 +7,7 @@ const productPageSchema = s.object({
   meta: metaSchema,
   sections: s.array(
     s
-      .union(
+      .discriminatedUnion(
         "type",
         // Add other sections here
         imageTextSection,
@@ -45,6 +45,7 @@ export default c.define(
       sections: [
         {
           type: "image-text",
+          surface: "default",
           title: "Product 1",
           text: [
             {
@@ -55,6 +56,7 @@ export default c.define(
             },
           ],
           image: null,
+          imageSide: "left",
         },
       ],
     },

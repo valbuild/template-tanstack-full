@@ -4,11 +4,24 @@ import { Suspense } from "react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ValModulesClient, ValProvider } from "@valbuild/tanstack";
-import { config } from "../../val.config";
+import { config, val } from "../../val.config";
 import valModules from "../../val.modules";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { fetchValDraft } from "../val/val.server";
+import { useVal } from "../val/val.hooks";
+import themeVal from "../theme/theme.val";
+import { resolveTheme } from "../theme/resolveTheme";
+import { ThemeRoot } from "../theme/ThemeRoot";
+import appCss from "../styles.css?url";
+
+/*
+ * A visitor's own light/dark choice, applied before the first paint so the
+ * page never flashes the other mode. `data-theme` on <html> overrides the
+ * site's default, which `theme.val.ts` sets; no stored choice means the
+ * default stands. `ThemeToggle` writes the same key.
+ */
+const THEME_INIT_SCRIPT = `(function(){try{var m=window.localStorage.getItem('theme');if(m==='light'||m==='dark'){document.documentElement.setAttribute('data-theme',m)}}catch(e){}})();`;
 
 /**
  * The draft this request renders, when an editor is previewing; `null` for
@@ -31,6 +44,16 @@ const getValDraft = createServerFn().handler(() => fetchValDraft());
  * keeps the header, the footer and the Val overlay off `/val`.
  */
 export const Route = createFileRoute("/_site")({
+  /*
+   * The site's stylesheet and theme script belong to the site's pages, not
+   * to `__root`: that is the shell for Val Studio too, which must not inherit
+   * the site's fonts, line height or colour scheme. Both are in <head> on the
+   * server render, so the first paint is already styled.
+   */
+  head: () => ({
+    links: [{ rel: "stylesheet", href: appCss }],
+    scripts: [{ children: THEME_INIT_SCRIPT }],
+  }),
   /*
    * On the server only. The draft is for the render that has no other way to
    * get it -- the first one, and the browser's hydration of it, which reuses
@@ -59,7 +82,30 @@ function SiteLayout() {
     <ValProvider config={config} suspend draft={draft}>
       {/* Hands the Studio your schemas. Needed here AND on the /val route. */}
       <ValModulesClient modules={valModules} />
-      <Header />
+      {/*
+       * Its own boundary: reading the theme can suspend like any other
+       * content read, and there is nothing above this to catch it.
+       */}
+      <Suspense fallback={null}>
+        <ThemedSite />
+      </Suspense>
+    </ValProvider>
+  );
+}
+
+/**
+ * Inside `ValProvider`, so the theme is read like any other content: an editor
+ * changing it in the Studio sees the whole site follow as they click.
+ */
+function ThemedSite() {
+  /*
+   * `val.raw`, because every value here ends up in CSS. The edit tags that
+   * make text click-to-edit would be garbage inside a colour or a font URL.
+   */
+  const theme = resolveTheme(val.raw(useVal(themeVal)));
+  return (
+    <ThemeRoot theme={theme} className="flex min-h-screen flex-col">
+      <Header toggle={theme.toggle} />
       {/*
        * Required, because `suspend` above means the hooks can suspend.
        *
@@ -68,7 +114,7 @@ function SiteLayout() {
        * looks like the Studio failing to load. TanStack Start gives you no
        * boundary of its own, so this is the app's job.
        */}
-      <Suspense fallback={<main className="page-wrap px-4 py-14" />}>
+      <Suspense fallback={<main className="flex-1" />}>
         <Outlet />
       </Suspense>
       <Footer />
@@ -78,6 +124,6 @@ function SiteLayout() {
           { name: "Tanstack Router", render: <TanStackRouterDevtoolsPanel /> },
         ]}
       />
-    </ValProvider>
+    </ThemeRoot>
   );
 }

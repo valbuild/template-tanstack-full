@@ -8,6 +8,7 @@ const richTextOptions = {
   h3: true,
   ul: true,
   ol: true,
+  a: true,
 } satisfies RichTextOptions;
 export const proseSchema = s.richtext(richTextOptions);
 export type ProseSchema = t.inferSchema<typeof proseSchema>;
