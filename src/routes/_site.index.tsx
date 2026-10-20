@@ -1,11 +1,41 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { val } from "../../val.config";
 import { NotFound } from "../components/NotFound";
 import { AnySection } from "../components/sections/AnySection";
 import { useValRoute } from "../val/val.hooks";
+import { fetchValRoute } from "../val/val.server";
 import pageVal from "./_site.index.val";
 
+/**
+ * The page's title and meta description, read on the server.
+ *
+ * `head` runs before the component, so this is a server read like the one in
+ * `_site.products.$sku.tsx`, and through `createServerFn` for the same reason.
+ * Without it the page has no meta description, which search engines show
+ * under the link and Lighthouse's SEO audit fails.
+ */
+const getMeta = createServerFn().handler(async () => {
+  const page = await fetchValRoute(pageVal, {});
+  if (!page) {
+    return null;
+  }
+  return {
+    title: val.raw(page.meta.title),
+    description: val.raw(page.meta.description),
+  };
+});
+
 export const Route = createFileRoute("/_site/")({
-  head: () => ({ meta: [{ title: "Home" }] }),
+  loader: () => getMeta(),
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: loaderData?.title ?? "Home" },
+      ...(loaderData?.description
+        ? [{ name: "description", content: loaderData.description }]
+        : []),
+    ],
+  }),
   component: Home,
 });
 
