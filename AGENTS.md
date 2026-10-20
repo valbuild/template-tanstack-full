@@ -34,6 +34,31 @@ that must happen during the request. When you do, it **must** go through
 `val.server` into one puts Node's `fs` in the client bundle.
 `src/routes/_site.products.$sku.tsx` is the worked example.
 
+## Environment variables
+
+Configuration and credentials the site reads when it runs. On Val's platform
+they are set in Val Build (the project's Variables, or Settings › Variables in
+the Studio) and a change is live on the next request, with no build. Locally
+they come from `.env` (start from `.env.example`; `.env` is gitignored).
+
+```ts
+import.meta.env.PUBLIC_API_URL; // a PUBLIC_ variable: server and browser
+process.env.FEATURE_FLAG; // anything else: server only
+process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
+```
+
+- **Only `PUBLIC_` names reach the browser.** Anything else is `undefined`
+  there, so read it in code that runs on the server only: a `createServerFn`
+  handler or a server route (`src/routes/api/*`). Never in a component.
+- **A route `loader` is not server-only**: it runs in the browser on client
+  navigation, and what it returns is serialised into the page. Returning a
+  secret from one publishes it, even unrendered.
+- **Never put a credential in a `PUBLIC_` name.** Val Build refuses a secret
+  by one, but a variable is not checked: whatever it holds is sent to every
+  visitor.
+- Do not add credentials to `val.config.ts`, a `*.val.ts` file or anything
+  else in the repository. Names starting with `VAL_` are Val Build's own.
+
 ## Rules that are not obvious
 
 - `export default c.define(...)` must be written inline. Assigning to a const

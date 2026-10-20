@@ -5,6 +5,14 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
+  /*
+   * `PUBLIC_` reaches the browser, as it does on Val's platform: there a
+   * project's `PUBLIC_` variables are `import.meta.env.NAME` in the browser,
+   * and everything else stays on the server, as `process.env.NAME`. Vite
+   * only lets `VITE_` through by default, so without this a `PUBLIC_`
+   * variable from `.env` would be there when hosted and missing in `vite dev`.
+   */
+  envPrefix: ["VITE_", "PUBLIC_"],
   resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),
