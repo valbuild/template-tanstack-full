@@ -52,6 +52,10 @@ process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
   handler or a server route (`src/routes/api/*`). Never in a component.
   `import.meta.env` holds `PUBLIC_` names only, on the server too: read
   anything else as `process.env.NAME`. `VITE_` names are not used here.
+- **On Val's platform `PUBLIC_` values are read when the site runs; anywhere
+  else `vite build` writes them into the bundle when it builds**, so a change
+  there needs a new build. On the server, `process.env.PUBLIC_NAME` reads the
+  current value on any host.
 - **A route `loader` is not server-only**: it runs in the browser on client
   navigation, and what it returns is serialised into the page. Returning a
   secret from one publishes it, even unrendered.
