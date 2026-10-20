@@ -11,8 +11,10 @@ const config = defineConfig({
    * and everything else stays on the server, as `process.env.NAME`. Vite
    * only lets `VITE_` through by default, so without this a `PUBLIC_`
    * variable from `.env` would be there when hosted and missing in `vite dev`.
+   * And only `PUBLIC_`: a `VITE_` name would reach the browser here and not
+   * on the platform.
    */
-  envPrefix: ["VITE_", "PUBLIC_"],
+  envPrefix: "PUBLIC_",
   resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),

@@ -50,6 +50,8 @@ process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
 - **Only `PUBLIC_` names reach the browser.** Anything else is `undefined`
   there, so read it in code that runs on the server only: a `createServerFn`
   handler or a server route (`src/routes/api/*`). Never in a component.
+  `import.meta.env` holds `PUBLIC_` names only, on the server too: read
+  anything else as `process.env.NAME`. `VITE_` names are not used here.
 - **A route `loader` is not server-only**: it runs in the browser on client
   navigation, and what it returns is serialised into the page. Returning a
   secret from one publishes it, even unrendered.
@@ -57,7 +59,10 @@ process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
   by one, but a variable is not checked: whatever it holds is sent to every
   visitor.
 - Do not add credentials to `val.config.ts`, a `*.val.ts` file or anything
-  else in the repository. Names starting with `VAL_` are Val Build's own.
+  else in the repository. A few names are set by Val Build and cannot be used
+  (`VAL_SECRET`, `VAL_PROJECT` and the like), nor any starting with
+  `PLATFORM_`; Val's own settings, such as `VAL_OAUTH_ISSUER`, are set like
+  any other variable.
 
 ## Rules that are not obvious
 

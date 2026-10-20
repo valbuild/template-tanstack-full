@@ -222,12 +222,14 @@ live on the next request; nothing is rebuilt.
   browser as `import.meta.env.NAME`; every variable is `process.env.NAME` on the
   server.
 - **Secrets** are credentials. They are sealed in your browser before they are
-  sent, nobody can read them back, and they are `process.env.NAME` on the
-  server only.
+  sent and never shown again; only your site's server receives them, as
+  `process.env.NAME`.
 
 Locally they come from `.env`: copy `.env.example`. `vite.config.ts` lets
 `PUBLIC_` through to the browser as the platform does. Hosted elsewhere, set
-them in your host's settings.
+them in your host's settings -- and know that there `vite build` writes the
+`PUBLIC_` values into the bundle when it builds, so changing one means building
+again.
 
 ### On Val's platform
 
