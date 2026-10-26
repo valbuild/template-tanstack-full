@@ -41,8 +41,9 @@ that must happen during the request. When you do, it **must** go through
 
 Configuration and credentials the site reads when it runs. On Val's platform
 they are set in Val Build (the project's Variables, or Settings › Variables in
-the Studio) and a change is live on the next request, with no build. Locally
-they come from `.env` (start from `.env.example`; `.env` is gitignored).
+the Studio) and a change is live within a minute, with no build. Locally
+they come from `.env` (start from `.env.example`; `.env` and every
+`.env.*` but the example are gitignored).
 
 ```ts
 import.meta.env.PUBLIC_API_URL; // a PUBLIC_ variable: server and browser
@@ -50,9 +51,12 @@ process.env.FEATURE_FLAG; // anything else: server only
 process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
 ```
 
-- **Only `PUBLIC_` names reach the browser.** Anything else is `undefined`
-  there, so read it in code that runs on the server only: a `createServerFn`
-  handler or a server route (`src/routes/api/*`). Never in a component.
+- **Only `PUBLIC_` names reach the browser**, as `import.meta.env.NAME`.
+  Anything else is `undefined` there, so read it in code that runs on the
+  server only: a `createServerFn` handler or a server route
+  (`src/routes/api/*`). Never in a component -- and never `process.env` in
+  one: in `vite dev` the browser has no `process`, so it throws when the
+  component hydrates.
   `import.meta.env` holds `PUBLIC_` names only, on the server too: read
   anything else as `process.env.NAME`. `VITE_` names are not used here.
 - **On Val's platform `PUBLIC_` values are read when the site runs; anywhere
