@@ -37,44 +37,6 @@ that must happen during the request. When you do, it **must** go through
 `val.server` into one puts Node's `fs` in the client bundle.
 `src/routes/_site.products.$sku.tsx` is the worked example.
 
-## Environment variables
-
-Configuration and credentials the site reads when it runs. On Val's platform
-they are set in Val Build (the project's Variables, or Settings › Variables in
-the Studio) and a change is live within a minute, with no build. Locally
-they come from `.env` (start from `.env.example`; `.env` and every
-`.env.*` but the example are gitignored).
-
-```ts
-import.meta.env.PUBLIC_API_URL; // a PUBLIC_ variable: server and browser
-process.env.FEATURE_FLAG; // anything else: server only
-process.env.STRIPE_SECRET_KEY; // a secret: server only, never the browser
-```
-
-- **Only `PUBLIC_` names reach the browser**, as `import.meta.env.NAME`.
-  Anything else is `undefined` there, so read it in code that runs on the
-  server only: a `createServerFn` handler or a server route
-  (`src/routes/api/*`). Never in a component -- and never `process.env` in
-  one: in `vite dev` the browser has no `process`, so it throws when the
-  component hydrates.
-  `import.meta.env` holds `PUBLIC_` names only, on the server too: read
-  anything else as `process.env.NAME`. `VITE_` names are not used here.
-- **On Val's platform `PUBLIC_` values are read when the site runs; anywhere
-  else `vite build` writes them into the bundle when it builds**, so a change
-  there needs a new build. On the server, `process.env.PUBLIC_NAME` reads the
-  current value on any host.
-- **A route `loader` is not server-only**: it runs in the browser on client
-  navigation, and what it returns is serialised into the page. Returning a
-  secret from one publishes it, even unrendered.
-- **Never put a credential in a `PUBLIC_` name.** Val Build refuses a secret
-  by one, but a variable is not checked: whatever it holds is sent to every
-  visitor.
-- Do not add credentials to `val.config.ts`, a `*.val.ts` file or anything
-  else in the repository. A few names are set by Val Build and cannot be used
-  (`VAL_SECRET`, `VAL_PROJECT` and the like), nor any starting with
-  `PLATFORM_`; Val's own settings, such as `VAL_OAUTH_ISSUER`, are set like
-  any other variable.
-
 ## Rules that are not obvious
 
 - `export default c.define(...)` must be written inline. Assigning to a const

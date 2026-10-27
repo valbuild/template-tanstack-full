@@ -5,9 +5,6 @@ import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
-  // `PUBLIC_` names reach the browser, and no others, as on Val's platform.
-  // The rules are in AGENTS.md ("Environment variables").
-  envPrefix: "PUBLIC_",
   resolve: { tsconfigPaths: true },
   plugins: [
     devtools(),

@@ -212,28 +212,6 @@ TanStack Start builds to a Nitro server, so it deploys anywhere Node runs —
 After deploying, set the project up on [Val Build App](https://app.val.build) so
 everyone can edit content in production.
 
-### Environment variables
-
-**Hosted by Val**, set them in [Val Build App](https://app.val.build), on the
-project's **Variables** page, or in the Studio under **Settings › Variables**.
-A change is live within a minute; nothing is rebuilt.
-
-- **Variables** are configuration. A name starting with `PUBLIC_` reaches the
-  browser as `import.meta.env.NAME`; every variable is `process.env.NAME` on the
-  server.
-- **Secrets** are credentials. They are sealed in your browser before they are
-  sent and never shown again; only your site's server receives them, as
-  `process.env.NAME`.
-
-**Hosted anywhere else**, set them in your host's settings: Val Build's
-Variables page does not reach another host. There `vite build` writes the
-`PUBLIC_` values into the bundle when it builds, so changing one means
-building again.
-
-**Locally** they come from `.env`: copy `.env.example`. `vite.config.ts` lets
-`PUBLIC_` through to the browser as the platform does. The rules for reading
-them are in [AGENTS.md](AGENTS.md#environment-variables).
-
 ### On Val's platform
 
 A project created on [Val Build App](https://app.val.build) is hosted by Val,
